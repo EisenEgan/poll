@@ -9,8 +9,6 @@ mixin showBar(isAuth, selected)
     -var menu = { 'Home': '/polls', 'My Polls': '/mypolls', 'New Poll': '/newpoll' };
     ul.nav.navbar-nav.navbar-right
       each val, key in menu
-        -console.log(selected, key)
-        -console.log(selected === key)
         if selected === key
           li.active.link
             a(href=val, title=key)= key
