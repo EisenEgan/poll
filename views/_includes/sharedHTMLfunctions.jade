@@ -1,0 +1,27 @@
+mixin showBar(isAuth, selected)
+  if (!isAuth)
+    ul.nav.navbar-nav.navbar-right
+      li.active.link
+        a(href='#') Home
+      li.dropdown
+        button.btn.btn-info.navbar-btn(type='button') Sign in with Twitter
+  else
+    -var menu = { 'Home': '/polls', 'My Polls': '/mypolls', 'New Poll': '/newpoll' };
+    ul.nav.navbar-nav.navbar-right
+      each val, key in menu
+        -console.log(selected, key)
+        -console.log(selected === key)
+        if selected === key
+          li.active.link
+            a(href=val, title=key)= key
+        else
+          li.link
+            a(href=val, title=key)= key
+      li.dropdown
+        a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+          | UserNameGoesHere 
+          span.caret
+        ul.dropdown-menu
+          li
+            a(href='#')
+              button.btn.btn-primary.signoutbtn(type='button') Sign Out

@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  .row.stuff
+    .col-xs-12.col-sm-6
+      .row
+        .col-xs-12.col-sm-10.col-sm-offset-1
+          h3 Poll Name
+          h4= JSON.parse(data).labels
+          .form-group
+            label(for='sel1') I'd like to vote for...:
+            select#sel1.form-control
+              each choice in JSON.parse(data).labels
+                option #{choice}
+          button.btn.btn-primary.btn-block.pollbtn(type='button') Submit
+          button.btn.btn-info.btn-block.pollbtn(type='button')
+            i.fa.fa-twitter(aria-hidden='true')
+            |  Share on Twitter
+    .col-xs-12.col-sm-6
+      canvas#myChart(width= "240px", height= "240px")
+      script(type='text/javascript').
+        $(document).ready(function() {
+          var local_data = !{JSON.stringify(data)};
+          var ctx = document.getElementById("myChart").getContext('2d');
+          /*alert(local_data)*/
+          var data = {labels: ["Red"], datasets: [{data: [300], backgroundColor: ["#FF6384",]}]};
+          var myDoughnutChart = new Chart(ctx, {type: 'doughnut', data: JSON.parse(local_data), options: {responsive: false, legend: {position: "bottom",labels: {boxWidth: 12}}}});
+        });
