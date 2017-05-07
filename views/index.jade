@@ -7,10 +7,5 @@ block content
       h5 Below are polls hosted by fcc-voting.
       h5 Select a poll to see the results and vote, or sign-in to make a new poll.
       .btn-group-vertical.btn-block
-        button.btn.btn-default herp
-        button.btn.btn-default derp
-        button.btn.btn-default syrup
-        button.btn.btn-default something else
-    //- .polls
-    //-   .col-xs-12.col-sm-10.col-sm-offset-1.poll
-    //-     h5 herp
+        each poll in polls
+          a.btn.btn-default(href='/polls/#{poll._id}', role='button')= poll.title

@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 require('./app_api/models/db')
 
+var poll = require('./routes/poll');
 var index = require('./routes/index');
 var routesApi = require('./app_api/routes/polls');
 
@@ -23,6 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/polls', poll);
 app.use('/api', routesApi);
 app.use('/', index);
 

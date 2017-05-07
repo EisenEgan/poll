@@ -7,6 +7,10 @@
   border-radius: 4px;
 }
 
+.info {
+  padding: 50px;
+}
+
 h1 {
   font-size: 65px;
   padding-top: 30px;

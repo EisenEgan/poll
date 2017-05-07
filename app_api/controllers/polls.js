@@ -5,10 +5,11 @@ module.exports = {
   pollList: function (req, res) {
     Poll
       .find()
+      .select("title")
       .exec(function(err, polls) {
         if (!polls) {
           sendJsonResponse(res, 404, {
-            "message": "locationid not found"
+            "message": "pollid not found"
           });
           return;
         } else if (err) {
@@ -19,12 +20,13 @@ module.exports = {
       })
   },
   pollCreate: function (req, res) {
-    const arr = Array(JSON.parse(req.body.options).length).fill(0);
+    const arr = Array(req.body.options.length).fill(0);
+    var voters = [];
     Poll.create({
       title: req.body.title,
-      options: JSON.parse(req.body.options),
+      options: req.body.options,
       values: arr,
-      voters: JSON.parse(req.body.voters)
+      voters: voters
     }, function(err, poll) {
       if (err) {
         sendJsonResponse(res, 400, err);
@@ -40,7 +42,7 @@ module.exports = {
       .exec(function(err, poll) {
         if (!poll) {
           sendJsonResponse(res, 404, {
-            "message": "locationid not found"
+            "message": "pollid not found"
           });
           return;
         } else if (err) {
@@ -52,12 +54,12 @@ module.exports = {
     }
     else {
       sendJsonResponse(res, 404, {
-        "message": "No locationid in request"
+        "message": "No pollnid in request"
       })
     }
   },
   pollUpdateValues: function(req, res) {
-    var pos = req.body.position
+    var pos = req.body.value
     if (!req.params || !req.params.pollid) {
       sendJsonResponse(res, 404, {
         "message": "Not found, pollid is required"
@@ -66,18 +68,21 @@ module.exports = {
     }
     Poll
       .findById(req.params.pollid)
-      .select('values')
+      .select('values options')
       .exec(function(err, poll) {
         if (!poll) {
           sendJsonResponse(res, 404, {
-            "message": "locationid not found"
+            "message": "pollid not found"
           });
           return;
         } else if (err) {
           sendJsonResponse(res, 404, err);
           return;
         }
-        poll.values[req.body.position]++;
+        console.log("print?")
+        console.log("value = " + req.body.value)
+        poll.values[poll.options.indexOf(req.body.value)]++;
+        console.log(poll.values);
         Poll.update({ _id: req.params.pollid }, { $set: { values: poll.values }},  function(err, poll) {
             if (err) {
               sendJsonResponse(res, 404, err);
@@ -88,6 +93,7 @@ module.exports = {
       })
   },
   pollDeleteOne: function (req, res) {
+    console.log(req.params.pollid)
     if (req.params.pollid) {
       Poll
         .findByIdAndRemove(req.params.pollid)
