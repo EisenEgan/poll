@@ -16,7 +16,61 @@ var colors = [
 	"#9684a1"
 ]
 
-router.get('/:id', function(req, res, next) {
+var isAuth;
+
+router.post('/', function(req, res, next) {
+  console.log('herp')
+  isAuth = true;
+  console.log("name = " + req.body.name)
+  console.log('derp')
+  // console.log("req.body = " + req.body);
+  // console.log('derp')
+  // var requestOptions, path;
+  // path = '/api/polls';
+  // requestOptions = {
+  //   url: apiOptions.server + path,
+  //   method: "GET",
+  //   json: {}
+  // }
+  // request(
+  //   requestOptions,
+  //   function(err, response, body) {
+  res.send({"herp": "derp"})
+  //res.render('index', {title: 'All Polls', isAuth: true, polls: body});
+  //   }
+  // )
+})
+
+var firebase = require('firebase');
+var config = {
+  apiKey: "AIzaSyBxAuw_Bwaea2UjbD1tO7YI3CRGFjj2tS4",
+  authDomain: "pollapp-25bfb.firebaseapp.com",
+  databaseURL: "https://pollapp-25bfb.firebaseio.com",
+  storageBucket: "pollapp-25bfb.appspot.com",
+  };
+firebase.initializeApp(config);
+var provider = new firebase.auth.TwitterAuthProvider();
+
+router.get('/:id', function(req, res) {
+  // var isAuth;
+  // firebase.auth().onAuthStateChanged(function(user) {
+  //   if (user) {
+  //     // User is signed in.
+  //     isAuth == true;
+  //     console.log('does this ever print?')
+  //     var displayName = user.displayName;
+  //     var email = user.email;
+  //     var emailVerified = user.emailVerified;
+  //     var photoURL = user.photoURL;
+  //     var isAnonymous = user.isAnonymous;
+  //     var uid = user.uid;
+  //     var providerData = user.providerData;
+  //   // ...
+  //   } else {
+  //   // User is signed out.
+  //   // ...
+  //   }
+  // });
   var requestOptions, path;
   path = '/api/polls/' + req.params.id;
   requestOptions = {
@@ -37,7 +91,7 @@ router.get('/:id', function(req, res, next) {
           }
         ]
       }
-      res.render('poll', {title: body.title, data: JSON.stringify(data), isAuth: false, pollData: body});
+      res.render('poll', {title: body.title, data: JSON.stringify(data), isAuth: !(isAuth == undefined), pollData: body});
     }
   )
 })
@@ -69,7 +123,6 @@ router.post('/select/:id', function(req, res, next) {
   request(
     requestOptions,
     function(err, response, body) {
-      console.log(body);
       res.redirect('/polls/' + req.params.id)
     }
   )
@@ -86,9 +139,10 @@ router.get('/', function(req, res, next) {
   request(
     requestOptions,
     function(err, response, body) {
-      res.render('index', {title: 'All Polls', isAuth: false, polls: body});
+      res.render('index', {title: 'All Polls', isAuth: !(isAuth == undefined), polls: body});
     }
   )
 })
+
 
 module.exports = router;

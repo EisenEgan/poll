@@ -11,17 +11,47 @@ block content
             option(selected='' hidden='') Choose an option...:
             each choice in JSON.parse(data).labels
               option= choice
+            if (displayName)
+              option I'd like to add a new option.
+          .userChosenOption(style="display:none")
+            label(for='newOption') Vote with my own option:
+            input#newOption.form-control(name="newOption")
         button.btn.btn-primary.btn-block.pollbtn(type='submit') Submit
-        button.btn.btn-info.btn-block.pollbtn(type='button')
-          i.fa.fa-twitter(aria-hidden='true')
-          |  Share on Twitter
+        //a.twitter.customer.share(href='http://twitter.com/share?url=http://codepen.io/patrickkahl&text=Share popup on &hashtags=codepen', title='Twitter share', target='_blank') Twitter
+        a.twitterButton.customer.share(href="http://twitter.com/share?url=https://frozen-forest-33590.herokuapp.com/#{id}&text=#{pollData.title} : fcc-voting", title='twitter', target='_blank' style="text-decoration:none")
+          button.btn.btn-info.btn-block.pollbtn(type='button')
+            i.fa.fa-twitter(aria-hidden='true')
+            |  Share on Twitter
     .col-xs-12.col-sm-8
       canvas#myChart(width= "240px", height= "240px")
-      form(action="/polls/#{pollData._id}", method="post", role="form")
-        button.btn.btn-danger.btn-block(type='submit') Remove this Poll
+      if (displayName == creator)
+        form(action="/polls/#{pollData._id}", method="post", role="form")
+          button.btn.btn-danger.btn-block(type='submit') Remove this Poll
       script(type='text/javascript').
         $(document).ready(function() {
+          $('select').change(function() {
+            if ($(':selected').val() == "I'd like to add a new option.")
+              $('.userChosenOption').show()
+            else
+              $('.userChosenOption').hide()
+          });
+          $.fn.customerPopup = function (e, intWidth, intHeight, blnResize) {
+          e.preventDefault();
+          intWidth = intWidth || '500';
+          intHeight = intHeight || '400';
+          strResize = (blnResize ? 'yes' : 'no');
+          var strTitle = ((typeof this.attr('title') !== 'undefined') ? this.attr('title') : 'Social Share'),
+            strParam = 'width=' + intWidth + ',height=' + intHeight + ',resizable=' + strResize,            
+            objWindow = window.open(this.attr('href'), strTitle, strParam).focus();
+          }
+          $('.customer.share').on("click", function(e) {
+            $(this).customerPopup(e);
+          });
+          //console.log("error = " + !{JSON.stringify(error)});
           var local_data = !{JSON.stringify(data)};
+          console.log("parsed result = " + JSON.parse(!{JSON.stringify(error)}).error)
+          if (JSON.parse(!{JSON.stringify(error)}).error == "denied")
+            alert('You already voted');
           var ctx = document.getElementById("myChart").getContext('2d');
           var myDoughnutChart = new Chart(ctx, {type: 'doughnut', data: JSON.parse(local_data), options: {responsive: false, legend: {position: "bottom",labels: {boxWidth: 12}}}});
         });

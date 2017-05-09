@@ -4,7 +4,9 @@ mixin showBar(isAuth, selected)
       li.active.link
         a(href='/polls') Home
       li.dropdown
-        button.btn.btn-info.navbar-btn(type='button') Sign in with Twitter
+        p.navbar-btn
+          //form(method="post", rold)
+          button.btn.btn-info#signIn Sign in with Twitter
   else
     -var menu = { 'Home': '/polls', 'My Polls': '/mypolls', 'New Poll': '/newpoll' };
     ul.nav.navbar-nav.navbar-right
@@ -16,10 +18,56 @@ mixin showBar(isAuth, selected)
           li.link
             a(href=val, title=key)= key
       li.dropdown
-        a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
-          | UserNameGoesHere 
+        a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')= displayName
           span.caret
         ul.dropdown-menu
           li
-            a(href='#')
-              button.btn.btn-primary.signoutbtn(type='button') Sign Out
+            //a(href='/polls')
+            button.btn.btn-primary.signoutbtn#signOut(type='button') Sign Out
+  script.
+    $(document).ready(function() {
+      var newConfig = JSON.parse(!{JSON.stringify(config)});
+      var config = newConfig;
+      firebase.initializeApp(config);
+      var provider = new firebase.auth.TwitterAuthProvider();
+      $("#signOut").click(function() {
+        firebase.auth().signOut().then(function() {
+          console.log('syrup')
+          $.ajax({
+            url: '/polls',
+            data: {herp: "derp"}, // {name: user}, //'{ "data" : "' + result.user.displayName + '" }',
+            type: 'POST',
+            success: function (data) {
+              console.log('works');
+                // console.log('data = ' + data)
+              location.reload(); 
+            },
+            error: function (xhr, status, error) {
+              console.log('fails');
+                //location.reload(); 
+            }
+          });
+          }, function(error) {
+          console.error('Sign Out Error', error);
+        });
+      })
+      $("#signIn").click(function() {
+        firebase.auth().signInWithPopup(provider).then(function(result) {
+            var user = result.user.displayName;
+            console.log('derp');
+            $.ajax({
+              url: '/polls',
+              data: {name: user}, //'{ "data" : "' + result.user.displayName + '" }',
+              type: 'POST',
+              success: function (data) {
+                location.reload(); 
+              },
+              error: function (xhr, status, error) {
+                //location.reload(); 
+              }
+            });
+          }).catch(function(error) {
+            console.log(error)
+          });
+        })
+      })

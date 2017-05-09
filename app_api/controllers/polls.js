@@ -26,6 +26,7 @@ module.exports = {
       title: req.body.title,
       options: req.body.options,
       values: arr,
+      creator: req.body.creator,
       voters: voters
     }, function(err, poll) {
       if (err) {
@@ -59,16 +60,52 @@ module.exports = {
     }
   },
   pollUpdateValues: function(req, res) {
-    var pos = req.body.value
+    var pos = req.body.value,
+        voter = req.body.voter;
     if (!req.params || !req.params.pollid) {
       sendJsonResponse(res, 404, {
         "message": "Not found, pollid is required"
       });
       return;
     }
+    console.log("no = " + req.body.newOption);
+    if (req.body.newOption != "") {
+      Poll
+        .findById(req.params.pollid)
+        .exec(function(err, poll) {
+          if (!poll) {
+            sendJsonResponse(res, 404, {
+              "message": "pollid not found"
+            });
+            return;
+          } else if (err) {
+            sendJsonResponse(res, 404, err);
+            return;
+          }
+          poll.options.push(req.body.newOption);
+          poll.voters.push(req.body.voter);
+          poll.values.push(1);
+          // if (poll.voters.indexOf(voter) != -1) {
+          //   res.send("already voted");
+          //   return;
+          // }
+          // else {
+          //   poll.voters.push(voter)
+          // }
+          Poll.update({ _id: req.params.pollid }, { $set: { options: poll.options, voters: poll.voters, values: poll.values }},  function(err, poll) {
+              if (err) {
+                sendJsonResponse(res, 404, err);
+              } else {
+                sendJsonResponse(res, 200, poll);
+              }
+              return;
+          });
+        });
+    }
+    else {
     Poll
       .findById(req.params.pollid)
-      .select('values options')
+      //.select('values options voters')
       .exec(function(err, poll) {
         if (!poll) {
           sendJsonResponse(res, 404, {
@@ -79,11 +116,21 @@ module.exports = {
           sendJsonResponse(res, 404, err);
           return;
         }
+        console.log("poll.voters = " + poll.voters);
+        console.log("voter = " + voter);
+        console.log("poll.voters.indexOf(voter) = " + poll.voters.indexOf(voter))
+        if (poll.voters.indexOf(voter) != -1) {
+          res.send("already voted");
+          return;
+        }
+        else {
+          poll.voters.push(voter)
+        }
         console.log("print?")
         console.log("value = " + req.body.value)
         poll.values[poll.options.indexOf(req.body.value)]++;
-        console.log(poll.values);
-        Poll.update({ _id: req.params.pollid }, { $set: { values: poll.values }},  function(err, poll) {
+        console.log(poll);
+        Poll.update({ _id: req.params.pollid }, { $set: { values: poll.values, voters: poll.voters }},  function(err, poll) {
             if (err) {
               sendJsonResponse(res, 404, err);
             } else {
@@ -91,6 +138,7 @@ module.exports = {
             }
         });
       })
+    }
   },
   pollDeleteOne: function (req, res) {
     console.log(req.params.pollid)
@@ -112,6 +160,23 @@ module.exports = {
         "message": "No pollid"
       })
     }
+  },
+  userPolls: function (req, res) {
+    Poll
+      .find({"creator": req.headers.displayname})
+      .select("title")
+      .exec(function(err, polls) {
+        if (!polls) {
+          sendJsonResponse(res, 404, {
+            "message": "pollid not found"
+          });
+          return;
+        } else if (err) {
+          sendJsonResponse(res, 404, err);
+          return;
+        }
+        sendJsonResponse(res, 200, polls);
+      })
   }
 }
 
