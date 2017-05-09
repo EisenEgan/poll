@@ -1,14 +1,24 @@
 var express = require('express');
 var router = express.Router();
 var request = require('request');
+var variables;
+
 var apiOptions = {
   server: "http://localhost:3000"
 };
 if (process.env.NODE_ENV === 'production') {
   apiOptions.server = "https://frozen-forest-33590.herokuapp.com"
 }
-
-var variables = require('../variables').config
+if (process.env.NODE_ENV === 'production') {
+  var variables = {
+    apiKey: process.env.API_KEY,
+    authDomain: process.env.AUTH_DOMAIN,
+    databaseURL: process.env.DB_URL,
+    storageBucket: process.env.STORAGE_BUCKET
+  }
+} else {
+  var variables = require('../variables').config;
+}
 
 var colors = [
   "#dd0e0e",
